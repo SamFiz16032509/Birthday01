@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Gift for My Love</title>
+    <style>
+        :root {
+            --pink: #ff69b4;
+            --dark-pink: #e05297;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: black;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* --- Envelope Section --- */
+        #envelope-wrapper {
+            position: absolute;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #1a1a1a;
+            transition: opacity 1s ease-out;
+        }
+
+        .envelope {
+            position: relative;
+            width: 200px;
+            height: 150px;
+            background: var(--pink);
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
+        }
+
+        .envelope:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            z-index: 2;
+            border-top: 75px solid var(--dark-pink);
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            transform-origin: top;
+            transition: transform 0.4s 0.1s;
+        }
+
+        .envelope.open:before {
+            transform: rotateX(180deg);
+        }
+
+        .heart-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            font-size: 2rem;
+            color: white;
+        }
+
+        /* --- Matrix & Message Section --- */
+        #matrix {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--pink); 
+            text-shadow: 0 0 10px var(--pink), 0 0 20px var(--pink);
+            text-align: center;
+        }
+
+        #countdown {
+            font-size: 10rem;
+            font-weight: bold;
+        }
+
+        .hidden { display: none !important; }
+
+        h1 {
+            font-size: 3rem;
+            letter-spacing: 5px;
+            margin-bottom: 5px;
+        }
+
+        p.to-you {
+            font-size: 4rem; 
+            font-weight: bold;
+            letter-spacing: 12px;
+            margin: 0;
+        }
+
+        .floating-heart {
+            font-size: 5rem;
+            margin-top: 20px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="envelope-wrapper" onclick="startExperience()">
+        <div class="envelope" id="env">
+            <div class="heart-icon">❤️</div>
+        </div>
+        <p style="color: var(--pink); margin-top: 30px; letter-spacing: 2px;">Tap to Open</p>
+    </div>
+
+    <canvas id="matrix"></canvas>
+    
+    <div class="container hidden" id="main-ui">
+        <div id="countdown">3</div>
+
+        <div id="message" class="hidden">
+            <h1>HAPPY BIRTHDAY</h1>
+            <p class="to-you">FIZU JI</p>
+            <div class="floating-heart">❤️</div>
+        </div>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="Happy Birthday.song" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        const music = document.getElementById('bg-music');
+
+        function startExperience() {
+            document.getElementById('env').classList.add('open');
+            music.play();
+
+            setTimeout(() => {
+                document.getElementById('envelope-wrapper').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('envelope-wrapper').classList.add('hidden');
+                    document.getElementById('main-ui').classList.remove('hidden');
+                    startCountdown();
+                }, 1000);
+            }, 600);
+        }
+
+        // --- UPDATED PERSONALIZED MATRIX LOGIC ---
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // The phrases you requested
+        const phrases = [
+            "I love you so much meri begum ji",
+            "Happy Birthday My love",
+            "❤️"
+        ];
+        
+        const fontSize = 18;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Subtle pink/grey for the falling background text
+            ctx.fillStyle = "rgba(255, 105, 180, 0.3)"; 
+            ctx.font = fontSize + "px arial";
+
+            for (let i = 0; i < drops.length; i++) {
+                // Pick a random phrase for each drop
+                const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+                // Pick a random character from the selected phrase
+                const text = phrase.charAt(Math.floor(Math.random() * phrase.length));
+                
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 50);
+
+        // Countdown Logic
+        function startCountdown() {
+            let count = 3;
+            const countdownEl = document.getElementById('countdown');
+            const messageEl = document.getElementById('message');
+
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownEl.innerText = count;
+                } else {
+                    clearInterval(timer);
+                    countdownEl.classList.add('hidden');
+                    messageEl.classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
